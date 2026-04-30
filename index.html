@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Python 小白学习营</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="课程导航">
+        <div class="brand">
+          <span class="brand-mark">Py</span>
+          <div>
+            <h1>Python 小白学习营</h1>
+            <p>从第一行代码到独立练习</p>
+          </div>
+        </div>
+
+        <div class="progress-panel">
+          <div class="progress-copy">
+            <span>学习进度</span>
+            <strong id="progressText">0/8</strong>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <span id="progressBar"></span>
+          </div>
+        </div>
+
+        <nav id="lessonList" class="lesson-list"></nav>
+      </aside>
+
+      <main class="main">
+        <section class="topbar">
+          <div>
+            <p class="eyebrow">零基础路线</p>
+            <h2 id="lessonTitle">准备加载课程...</h2>
+          </div>
+          <div class="topbar-actions">
+            <button id="prevLesson" class="icon-button" title="上一课" aria-label="上一课">
+              <span aria-hidden="true">←</span>
+            </button>
+            <button id="nextLesson" class="primary-button">下一课</button>
+          </div>
+        </section>
+
+        <section class="learning-grid">
+          <article class="lesson-panel">
+            <div id="lessonBody" class="lesson-body"></div>
+            <div class="checkpoint">
+              <label class="checkline">
+                <input id="completeLesson" type="checkbox" />
+                <span>我已经理解这一课</span>
+              </label>
+            </div>
+          </article>
+
+          <section class="practice-panel" aria-label="在线编程练习">
+            <div class="practice-head">
+              <div>
+                <p class="eyebrow">在线编程</p>
+                <h3 id="taskTitle">练习题</h3>
+              </div>
+              <span id="runtimeStatus" class="runtime-status">准备 Python</span>
+            </div>
+
+            <p id="taskDescription" class="task-description"></p>
+
+            <div class="editor-toolbar" aria-label="编辑器工具栏">
+              <button id="resetCode" class="tool-button" title="重置代码" aria-label="重置代码">↺</button>
+              <button id="showHint" class="tool-button">提示</button>
+              <button id="runCode" class="run-button">运行</button>
+            </div>
+
+            <textarea id="codeEditor" spellcheck="false" aria-label="Python 代码编辑器"></textarea>
+
+            <div id="hintBox" class="hint-box" hidden></div>
+
+            <div class="output-wrap">
+              <div class="output-head">
+                <span>运行结果</span>
+                <button id="clearOutput" class="ghost-button">清空</button>
+              </div>
+              <pre id="output" aria-live="polite">点击“运行”，看看 Python 会说什么。</pre>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
