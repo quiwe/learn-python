@@ -16,27 +16,38 @@
           <span class="brand-mark">Py</span>
           <div>
             <h1>Python 小白学习营</h1>
-            <p>从第一行代码到独立练习</p>
+            <p>从语法到项目的完整路线</p>
           </div>
         </div>
 
         <div class="progress-panel">
           <div class="progress-copy">
             <span>学习进度</span>
-            <strong id="progressText">0/8</strong>
+            <strong id="progressText">0/73</strong>
           </div>
           <div class="progress-track" aria-hidden="true">
             <span id="progressBar"></span>
           </div>
         </div>
 
+        <div class="course-tools">
+          <label class="search-label" for="lessonSearch">搜索课程</label>
+          <input id="lessonSearch" class="lesson-search" type="search" placeholder="例如：列表、函数、爬虫" />
+          <div id="categoryList" class="category-list" aria-label="课程分类"></div>
+        </div>
+
         <nav id="lessonList" class="lesson-list"></nav>
+        <div class="lesson-pager" aria-label="课程分页">
+          <button id="prevPage" class="pager-button" type="button">上一页</button>
+          <span id="pageInfo" class="page-info">第 1 / 1 页</span>
+          <button id="nextPage" class="pager-button" type="button">下一页</button>
+        </div>
       </aside>
 
       <main class="main">
         <section class="topbar">
           <div>
-            <p class="eyebrow">零基础路线</p>
+            <p class="eyebrow">Python 完整学习路线</p>
             <h2 id="lessonTitle">准备加载课程...</h2>
           </div>
           <div class="topbar-actions">
@@ -75,7 +86,10 @@
               <button id="runCode" class="run-button">运行</button>
             </div>
 
-            <textarea id="codeEditor" spellcheck="false" aria-label="Python 代码编辑器"></textarea>
+            <div class="editor-wrap">
+              <textarea id="codeEditor" spellcheck="false" aria-label="Python 代码编辑器"></textarea>
+              <div id="autocompleteList" class="autocomplete-list" role="listbox" hidden></div>
+            </div>
 
             <div id="hintBox" class="hint-box" hidden></div>
 
