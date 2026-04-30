@@ -1550,10 +1550,6 @@ elements.autocompleteList.addEventListener("mousedown", (event) => {
   applyCompletion(state.autocomplete.items[Number(item.dataset.index)]);
 });
 
-elements.codeEditor.addEventListener("input", () => {
-  updateAutocomplete();
-});
-
 elements.codeEditor.addEventListener("click", () => {
   closeAutocomplete();
 });
@@ -1600,6 +1596,11 @@ elements.codeEditor.addEventListener("keydown", (event) => {
 
   if (event.key === "Tab") {
     event.preventDefault();
+    updateAutocomplete(true);
+    if (state.autocomplete.open) {
+      return;
+    }
+
     const start = elements.codeEditor.selectionStart;
     const end = elements.codeEditor.selectionEnd;
     const value = elements.codeEditor.value;
