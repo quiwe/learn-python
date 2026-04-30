@@ -997,6 +997,71 @@ const completions = [
   { label: "main", insert: "if __name__ == \"__main__\":\n    main()", detail: "脚本入口", type: "片段" },
 ];
 
+const codeExplanationMap = {
+  "print()": "把括号里的内容显示到运行结果里。多个内容可以用英文逗号分开输出。",
+  "input()": "等待用户输入文字。注意它拿到的一定是字符串，需要计算时要先转成数字。",
+  "len()": "计算长度，比如列表里有几个元素、字符串里有几个字符。",
+  "range()": "生成一段数字序列，常和 for 循环一起用。range(5) 会产生 0 到 4。",
+  "int()": "把内容转换成整数，例如 int(\"18\") 会得到数字 18。",
+  "float()": "把内容转换成小数，例如 float(\"3.14\") 会得到 3.14。",
+  "str()": "把内容转换成字符串，方便拼接或输出。",
+  "type()": "查看一个值的数据类型，新手排查变量时很好用。",
+  "sum()": "把一组数字加起来，常用于计算总分、总价。",
+  "max()": "从一组数据里找最大值。",
+  "min()": "从一组数据里找最小值。",
+  "sorted()": "返回排序后的新列表，不会直接改掉原列表。",
+  "round()": "四舍五入。round(value, 2) 表示保留两位小数。",
+  "abs()": "取绝对值，例如 abs(-3) 得到 3。",
+  "pow()": "计算乘方，pow(2, 3) 等价于 2 ** 3。",
+  "set()": "创建集合，常用来去重。",
+  "list()": "创建列表，或把可迭代对象转换成列表。",
+  "dict()": "创建字典，保存键值对数据。",
+  "open()": "打开文件。常和 with 一起使用，避免忘记关闭文件。",
+  "file.write()": "向文件写入文字。",
+  "file.read()": "读取文件里的全部文字。",
+  "append()": "列表方法，把新元素追加到列表末尾。",
+  "items()": "字典方法，取出每一组键和值，常写成 for key, value in data.items()。",
+  "keys()": "字典方法，取出所有键。",
+  "values()": "字典方法，取出所有值。",
+  "sort()": "列表方法，直接把原列表排序。",
+  "split()": "字符串方法，把字符串按分隔符切成列表。不写分隔符时，默认按空白切分。",
+  "encode()": "字符串方法，把文字转换成字节，哈希、网络传输时常见。",
+  "hexdigest()": "哈希对象方法，把摘要结果显示成十六进制字符串。",
+  "strftime()": "日期时间方法，把时间格式化成指定样子的字符串。",
+  "now()": "获取当前日期时间。",
+  "today()": "获取今天的日期。",
+  "randint()": "生成指定范围内的随机整数，两端都可能取到。",
+  "choice()": "从列表等序列里随机挑一个元素。",
+  "sqrt()": "计算平方根。",
+  "ceil()": "向上取整，例如 3.2 会变成 4。",
+  "dumps()": "把 Python 数据转换成 JSON 字符串。",
+  "loads()": "把 JSON 字符串转换回 Python 数据。",
+  "fromstring()": "把 XML 字符串解析成可以查找节点的对象。",
+  "find()": "查找一个子节点或匹配项。",
+  "findall()": "查找所有符合条件的内容。",
+  "getcwd()": "获取当前工作目录。",
+  "listdir()": "列出某个目录里的文件和文件夹。",
+  "join()": "拼接路径或字符串。路径拼接时比手写斜杠更稳。",
+  "run()": "执行外部命令，来自 subprocess 模块。",
+  "start()": "启动线程。",
+  "join_thread()": "等待线程执行结束。代码里写作 thread.join() 或 t.join()。",
+  "put()": "队列方法，把任务或数据放进队列。",
+  "get()": "队列方法，从队列取出一个任务或数据。",
+  "empty()": "队列方法，判断队列是否为空。",
+  "sleep()": "暂停一小段时间；在 asyncio 里需要 await。",
+  "mean()": "计算平均值。",
+  "median()": "计算中位数。",
+  "dumps_pickle()": "把 Python 对象序列化成字节。代码里写作 pickle.dumps()。",
+  "loads_pickle()": "把 pickle 字节恢复成 Python 对象。代码里写作 pickle.loads()。",
+  "sys.version.split()[0]": "拆成三步看：sys.version 是完整版本字符串；.split() 按空格切成列表；[0] 取列表第一个元素，也就是简短版本号。",
+  "sys.version": "sys 模块里的版本字符串，包含 Python 版本、编译信息等。",
+  "sys.path": "Python 查找模块时会搜索的路径列表。",
+  "__name__": "当前文件的特殊变量。直接运行时通常等于 \"__main__\"。",
+  "__main__": "表示当前脚本是被直接运行的入口文件。",
+  "__init__": "创建对象时自动调用的初始化方法。",
+  "self": "类方法里的当前对象，表示“这个具体对象自己”。",
+};
+
 const state = {
   current: 0,
   completed: new Set(JSON.parse(localStorage.getItem("python-camp-completed") || "[]")),
@@ -1131,6 +1196,99 @@ function renderProgress() {
   elements.progressBar.style.width = `${(done / lessons.length) * 100}%`;
 }
 
+function normalizeCall(match) {
+  const name = match.replace(/\($/, "");
+  if (name.endsWith(".join") && /\bthread|^t$/i.test(name.split(".")[0])) {
+    return "join_thread()";
+  }
+  if (name === "pickle.dumps") return "dumps_pickle()";
+  if (name === "pickle.loads") return "loads_pickle()";
+  return `${name.split(".").pop()}()`;
+}
+
+function addExplanation(items, seen, term, detail) {
+  if (!term || seen.has(term)) return;
+  seen.add(term);
+  items.push({ term, detail });
+}
+
+function explainCall(call) {
+  const normalized = normalizeCall(call);
+  if (codeExplanationMap[normalized]) return codeExplanationMap[normalized];
+
+  const cleanCall = call.replace(/\($/, "()");
+  if (codeExplanationMap[cleanCall]) return codeExplanationMap[cleanCall];
+
+  if (call.includes(".")) {
+    const [objectName, methodName] = call.replace(/\($/, "").split(".").slice(-2);
+    return `${methodName}() 是 ${objectName} 对象上的方法，意思是“让这个对象执行一个动作”。`;
+  }
+
+  return `${call.replace(/\($/, "()")} 是一次函数调用：函数名后面加括号，Python 就会执行这个函数。`;
+}
+
+function getCodeExplanations(code) {
+  const explanations = [];
+  const seen = new Set();
+
+  if (code.includes("sys.version.split()[0]")) {
+    addExplanation(explanations, seen, "sys.version.split()[0]", codeExplanationMap["sys.version.split()[0]"]);
+  }
+
+  for (const importMatch of code.matchAll(/^\s*(import\s+[A-Za-z_][\w.]*|from\s+[A-Za-z_][\w.]*\s+import\s+[\w*, ]+)/gm)) {
+    addExplanation(
+      explanations,
+      seen,
+      importMatch[1],
+      "导入模块或模块里的工具。导入后，后面的代码才能使用它提供的函数、类或变量。"
+    );
+  }
+
+  for (const special of ["__name__", "__main__", "__init__", "self", "sys.version", "sys.path"]) {
+    if (code.includes(special)) {
+      addExplanation(explanations, seen, special, codeExplanationMap[special]);
+    }
+  }
+
+  for (const indexMatch of code.matchAll(/\b[A-Za-z_][\w.]*\[[^\]]+\]/g)) {
+    const term = indexMatch[0];
+    const detail = term.includes(":")
+      ? "方括号里的冒号表示切片，用来取出列表或字符串中的一段内容。"
+      : "方括号表示按下标取值。[0] 是取第一个元素，因为 Python 从 0 开始编号。";
+    addExplanation(explanations, seen, term, detail);
+  }
+
+  for (const callMatch of code.matchAll(/\b[A-Za-z_][\w.]*\(/g)) {
+    const call = callMatch[0];
+    addExplanation(explanations, seen, call.replace(/\($/, "()"), explainCall(call));
+  }
+
+  return explanations.slice(0, 12);
+}
+
+function renderCodeExplanations(lesson) {
+  const explanations = getCodeExplanations(`${lesson.sample}\n${lesson.starter}`);
+  if (!explanations.length) return "";
+
+  return `
+    <section class="code-breakdown" aria-label="代码拆解">
+      <h3>代码拆解</h3>
+      <div class="breakdown-list">
+        ${explanations
+          .map(
+            ({ term, detail }) => `
+              <div class="breakdown-item">
+                <code>${escapeHtml(term)}</code>
+                <p>${escapeHtml(detail)}</p>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderLesson() {
   const lesson = lessons[state.current];
   elements.lessonTitle.textContent = lesson.title;
@@ -1144,6 +1302,7 @@ function renderLesson() {
     ${lesson.body.map((paragraph) => `<p>${paragraph}</p>`).join("")}
     <ul>${lesson.points.map((point) => `<li>${point}</li>`).join("")}</ul>
     <pre class="code-sample"><code>${escapeHtml(lesson.sample)}</code></pre>
+    ${renderCodeExplanations(lesson)}
   `;
   elements.taskTitle.textContent = lesson.taskTitle;
   elements.taskDescription.textContent = lesson.task;
